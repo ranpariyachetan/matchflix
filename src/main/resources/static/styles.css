@@ -104,57 +104,56 @@ body {
     transform: scale(0.98);
 }
 
-/* Search Results */
-.search-results {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: rgba(0,0,0,0.6);
-    border: 1px solid #333;
-    border-radius: 4px;
-    max-height: 400px;
-    overflow-y: auto;
+/* Search Results Section */
+.search-results-section {
+    padding: 40px 20px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+    border-bottom: 1px solid #333;
+    animation: slideDown 0.3s ease;
 }
 
-.search-results.hidden {
+.search-results-section.hidden {
     display: none;
 }
 
-.search-result-item {
-    padding: 12px;
-    margin: 8px 0;
-    background-color: rgba(229, 9, 20, 0.1);
-    border-left: 3px solid #e50914;
-    border-radius: 2px;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-results-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.clear-search-btn {
+    padding: 8px 15px;
+    font-size: 14px;
+    background-color: rgba(229, 9, 20, 0.8);
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.search-result-item:hover {
-    background-color: rgba(229, 9, 20, 0.2);
-    transform: translateX(5px);
-}
-
-.search-result-title {
     font-weight: 600;
-    color: #e50914;
-    margin-bottom: 4px;
 }
 
-.search-result-description {
-    font-size: 14px;
-    color: #b3b3b3;
-}
-
-.search-result-match {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 4px 8px;
+.clear-search-btn:hover {
     background-color: #e50914;
-    color: #ffffff;
-    font-size: 12px;
-    border-radius: 2px;
-    font-weight: 600;
+    transform: scale(1.05);
 }
 
 /* Sections */
@@ -264,6 +263,10 @@ body {
 }
 
 .movie-card:hover .movie-badge {
+    opacity: 1;
+}
+
+#searchResults .movie-badge {
     opacity: 1;
 }
 

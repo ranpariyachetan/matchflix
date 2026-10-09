@@ -4,8 +4,16 @@ class MatchflixApp {
         this.searchInput = document.getElementById('searchInput');
         this.searchBtn = document.getElementById('searchBtn');
         this.searchResults = document.getElementById('searchResults');
+        this.searchResultsSection = document.getElementById('searchResultsSection');
+        this.clearSearchBtn = document.getElementById('clearSearchBtn');
         this.featuredMovies = document.getElementById('featuredMovies');
         this.allMovies = document.getElementById('allMovies');
+
+        // Create a movie lookup map for quick access
+        this.movieMap = {};
+        this.movies.forEach(movie => {
+            this.movieMap[movie.title.toLowerCase()] = movie;
+        });
 
         this.init();
     }
@@ -23,11 +31,7 @@ class MatchflixApp {
                 this.handleSearch();
             }
         });
-        this.searchInput.addEventListener('input', (e) => {
-            if (e.target.value.trim() === '') {
-                this.searchResults.classList.add('hidden');
-            }
-        });
+        this.clearSearchBtn.addEventListener('click', () => this.clearSearch());
     }
 
     renderFeaturedMovies() {
@@ -68,12 +72,12 @@ class MatchflixApp {
         const query = this.searchInput.value.trim();
 
         if (!query) {
-            this.searchResults.classList.add('hidden');
+            this.searchResultsSection.classList.add('hidden');
             return;
         }
 
         this.searchResults.innerHTML = '<div class="loading"></div>';
-        this.searchResults.classList.remove('hidden');
+        this.searchResultsSection.classList.remove('hidden');
 
         try {
             const response = await fetch(`/movies/search?query=${encodeURIComponent(query)}`);
@@ -93,31 +97,47 @@ class MatchflixApp {
             return;
         }
 
-        const html = results.map(result => `
-            <div class="search-result-item" data-title="${this.escapeHtml(result.title)}">
-                <div class="search-result-title">${this.escapeHtml(result.title)}</div>
-                <div class="search-result-description">${this.escapeHtml(result.description.substring(0, 100))}...</div>
-                <span class="search-result-match">${(result.match * 100).toFixed(1)}% Match</span>
-            </div>
-        `).join('');
+        // Convert API results to movie cards with poster info
+        const movieCards = results.map(result => {
+            // Find matching movie from our data to get poster and year
+            const movieData = this.movieMap[result.title.toLowerCase()] || {};
+            const movieWithPoster = {
+                title: result.title,
+                description: result.description,
+                year: movieData.year || 'N/A',
+                poster: movieData.poster,
+                match: result.match
+            };
+            return movieWithPoster;
+        });
+
+        const html = movieCards.map(movie => {
+            const cardHtml = `
+                <div class="movie-card" data-title="${this.escapeHtml(movie.title)}">
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22240%22><rect fill=%22%23333%22 width=%22160%22 height=%22240%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>${this.escapeHtml(movie.title)}</text></svg>'">
+                    <div class="movie-badge">${(movie.match * 100).toFixed(1)}%</div>
+                    <div class="movie-info">
+                        <div class="movie-title">${this.escapeHtml(movie.title)}</div>
+                        <div class="movie-year">${movie.year}</div>
+                    </div>
+                </div>
+            `;
+            return cardHtml;
+        }).join('');
 
         this.searchResults.innerHTML = html;
-        this.attachSearchResultListeners();
+        this.attachMovieCardListeners(this.searchResults);
     }
 
-    attachSearchResultListeners() {
-        const items = this.searchResults.querySelectorAll('.search-result-item');
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-                const title = item.dataset.title;
-                this.showSimilarMovies(title);
-            });
-        });
+    clearSearch() {
+        this.searchInput.value = '';
+        this.searchResultsSection.classList.add('hidden');
+        this.searchResults.innerHTML = '';
     }
 
     async showSimilarMovies(title) {
+        this.searchResultsSection.classList.remove('hidden');
         this.searchResults.innerHTML = '<div class="loading"></div>';
-        this.searchResults.classList.remove('hidden');
         this.searchInput.value = title;
 
         try {
