@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: matchflix
+    runtime: docker
+    plan: free
+    healthCheckPath: /movies/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false

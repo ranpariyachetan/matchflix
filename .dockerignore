@@ -1,0 +1,12 @@
+.git
+.gitignore
+.github
+.vscode
+.mvn/wrapper
+target
+*.md
+node_modules
+.env
+.env.local
+.DS_Store
+*.log
