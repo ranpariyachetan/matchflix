@@ -65,9 +65,18 @@ class MatchflixApp {
     }
 
     createMovieCard(movie) {
+        const hasPoster = movie.poster && movie.poster.startsWith('http');
+        const posterHtml = hasPoster
+            ? `<img src="${movie.poster}" alt="${movie.title}" class="movie-poster-img" onerror="this.style.display='none'; this.parentElement.querySelector('.movie-poster-fallback').style.display='flex';">`
+            : '';
+        const fallbackHtml = `<div class="movie-poster-fallback" style="background: ${movie.gradient}; display: ${hasPoster ? 'none' : 'flex'};"><div class="movie-poster-title">${this.escapeHtml(movie.title)}</div></div>`;
+
         return `
             <div class="movie-card" data-title="${this.escapeHtml(movie.title)}">
-                <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22240%22><rect fill=%22%23333%22 width=%22160%22 height=%22240%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>${this.escapeHtml(movie.title)}</text></svg>'">
+                <div class="movie-poster">
+                    ${posterHtml}
+                    ${fallbackHtml}
+                </div>
                 <div class="movie-badge">${movie.year}</div>
                 <div class="movie-info">
                     <div class="movie-title">${this.escapeHtml(movie.title)}</div>
@@ -131,9 +140,19 @@ class MatchflixApp {
         });
 
         const html = movieCards.map(movie => {
-            const cardHtml = `
+            const gradient = movie.gradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+            const hasPoster = movie.poster && movie.poster.startsWith('http');
+            const posterHtml = hasPoster
+                ? `<img src="${movie.poster}" alt="${movie.title}" class="movie-poster-img" onerror="this.style.display='none'; this.parentElement.querySelector('.movie-poster-fallback').style.display='flex';">`
+                : '';
+            const fallbackHtml = `<div class="movie-poster-fallback" style="background: ${gradient}; display: ${hasPoster ? 'none' : 'flex'};"><div class="movie-poster-title">${this.escapeHtml(movie.title)}</div></div>`;
+
+            return `
                 <div class="movie-card" data-title="${this.escapeHtml(movie.title)}">
-                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22240%22><rect fill=%22%23333%22 width=%22160%22 height=%22240%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>${this.escapeHtml(movie.title)}</text></svg>'">
+                    <div class="movie-poster">
+                        ${posterHtml}
+                        ${fallbackHtml}
+                    </div>
                     <div class="movie-badge">${(movie.match * 100).toFixed(1)}%</div>
                     <div class="movie-info">
                         <div class="movie-title">${this.escapeHtml(movie.title)}</div>
@@ -141,7 +160,6 @@ class MatchflixApp {
                     </div>
                 </div>
             `;
-            return cardHtml;
         }).join('');
 
         this.searchResults.innerHTML = html;
@@ -163,7 +181,13 @@ class MatchflixApp {
         }
 
         // Populate movie details
-        this.modalMoviePoster.src = movie.poster;
+        const hasPoster = movie.poster && movie.poster.startsWith('http');
+        if (hasPoster) {
+            this.modalMoviePoster.innerHTML = `<img src="${movie.poster}" alt="${movie.title}" class="modal-poster-img" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'; this.parentElement.style.background='${movie.gradient}'; this.parentElement.innerHTML=\`<div class='movie-poster-title'>${this.escapeHtml(movie.title)}</div>\`;">`;
+        } else {
+            this.modalMoviePoster.style.background = movie.gradient;
+            this.modalMoviePoster.innerHTML = `<div class="movie-poster-title">${this.escapeHtml(movie.title)}</div>`;
+        }
         this.modalMovieTitle.textContent = movie.title;
         this.modalMovieYear.textContent = movie.year;
         this.modalMovieDescription.textContent = movie.description;
@@ -214,9 +238,19 @@ class MatchflixApp {
         });
 
         const html = movieCards.map(movie => {
+            const gradient = movie.gradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+            const hasPoster = movie.poster && movie.poster.startsWith('http');
+            const posterHtml = hasPoster
+                ? `<img src="${movie.poster}" alt="${movie.title}" class="movie-poster-img" onerror="this.style.display='none'; this.parentElement.querySelector('.movie-poster-fallback').style.display='flex';">`
+                : '';
+            const fallbackHtml = `<div class="movie-poster-fallback" style="background: ${gradient}; display: ${hasPoster ? 'none' : 'flex'};"><div class="movie-poster-title">${this.escapeHtml(movie.title)}</div></div>`;
+
             return `
                 <div class="movie-card" data-title="${this.escapeHtml(movie.title)}">
-                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22240%22><rect fill=%22%23333%22 width=%22160%22 height=%22240%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>${this.escapeHtml(movie.title)}</text></svg>'">
+                    <div class="movie-poster">
+                        ${posterHtml}
+                        ${fallbackHtml}
+                    </div>
                     <div class="movie-badge">${(movie.match * 100).toFixed(1)}%</div>
                     <div class="movie-info">
                         <div class="movie-title">${this.escapeHtml(movie.title)}</div>
