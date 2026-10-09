@@ -9,6 +9,16 @@ class MatchflixApp {
         this.featuredMovies = document.getElementById('featuredMovies');
         this.allMovies = document.getElementById('allMovies');
 
+        // Modal elements
+        this.modal = document.getElementById('movieModal');
+        this.modalOverlay = document.getElementById('modalOverlay');
+        this.modalClose = document.getElementById('modalClose');
+        this.modalMoviePoster = document.getElementById('modalMoviePoster');
+        this.modalMovieTitle = document.getElementById('modalMovieTitle');
+        this.modalMovieYear = document.getElementById('modalMovieYear');
+        this.modalMovieDescription = document.getElementById('modalMovieDescription');
+        this.modalSimilarMovies = document.getElementById('modalSimilarMovies');
+
         // Create a movie lookup map for quick access
         this.movieMap = {};
         this.movies.forEach(movie => {
@@ -32,6 +42,15 @@ class MatchflixApp {
             }
         });
         this.clearSearchBtn.addEventListener('click', () => this.clearSearch());
+
+        // Modal event listeners
+        this.modalClose.addEventListener('click', () => this.closeModal());
+        this.modalOverlay.addEventListener('click', () => this.closeModal());
+
+        // Prevent modal closing when clicking on modal content
+        this.modal.querySelector('.modal-content').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     }
 
     renderFeaturedMovies() {
@@ -63,7 +82,7 @@ class MatchflixApp {
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 const title = card.dataset.title;
-                this.showSimilarMovies(title);
+                this.openMovieModal(title);
             });
         });
     }
@@ -135,21 +154,95 @@ class MatchflixApp {
         this.searchResults.innerHTML = '';
     }
 
-    async showSimilarMovies(title) {
-        this.searchResultsSection.classList.remove('hidden');
-        this.searchResults.innerHTML = '<div class="loading"></div>';
-        this.searchInput.value = title;
+    openMovieModal(title) {
+        const movie = this.movieMap[title.toLowerCase()];
 
+        if (!movie) {
+            console.error('Movie not found:', title);
+            return;
+        }
+
+        // Populate movie details
+        this.modalMoviePoster.src = movie.poster;
+        this.modalMovieTitle.textContent = movie.title;
+        this.modalMovieYear.textContent = movie.year;
+        this.modalMovieDescription.textContent = movie.description;
+
+        // Clear previous similar movies
+        this.modalSimilarMovies.innerHTML = '<div class="loading"></div>';
+
+        // Show modal
+        this.modal.classList.remove('hidden');
+
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+
+        // Fetch similar movies
+        this.fetchSimilarMoviesForModal(title);
+    }
+
+    async fetchSimilarMoviesForModal(title) {
         try {
             const response = await fetch(`/movies/${encodeURIComponent(title)}/similar`);
             if (!response.ok) throw new Error('Failed to fetch similar movies');
 
             const results = await response.json();
-            this.displaySearchResults(results);
+            this.displaySimilarMoviesInModal(results);
         } catch (error) {
             console.error('Error fetching similar movies:', error);
-            this.searchResults.innerHTML = '<div class="no-results">Error loading similar movies. Movie might not exist.</div>';
+            this.modalSimilarMovies.innerHTML = '<div class="no-results">Error loading similar movies.</div>';
         }
+    }
+
+    displaySimilarMoviesInModal(results) {
+        if (results.length === 0) {
+            this.modalSimilarMovies.innerHTML = '<div class="no-results">No similar movies found.</div>';
+            return;
+        }
+
+        // Convert API results to movie cards with poster info
+        const movieCards = results.map(result => {
+            const movieData = this.movieMap[result.title.toLowerCase()] || {};
+            const movieWithPoster = {
+                title: result.title,
+                description: result.description,
+                year: movieData.year || 'N/A',
+                poster: movieData.poster,
+                match: result.match
+            };
+            return movieWithPoster;
+        });
+
+        const html = movieCards.map(movie => {
+            return `
+                <div class="movie-card" data-title="${this.escapeHtml(movie.title)}">
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22240%22><rect fill=%22%23333%22 width=%22160%22 height=%22240%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2212%22>${this.escapeHtml(movie.title)}</text></svg>'">
+                    <div class="movie-badge">${(movie.match * 100).toFixed(1)}%</div>
+                    <div class="movie-info">
+                        <div class="movie-title">${this.escapeHtml(movie.title)}</div>
+                        <div class="movie-year">${movie.year}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        this.modalSimilarMovies.innerHTML = html;
+        this.attachModalSimilarMovieListeners();
+    }
+
+    attachModalSimilarMovieListeners() {
+        const cards = this.modalSimilarMovies.querySelectorAll('.movie-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.dataset.title;
+                this.openMovieModal(title);
+            });
+        });
+    }
+
+    closeModal() {
+        this.modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
     }
 
     escapeHtml(text) {

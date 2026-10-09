@@ -7,6 +7,38 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+    <!-- Movie Modal Dialog -->
+    <div class="modal hidden" id="movieModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+
+            <!-- Movie Details Section -->
+            <div class="movie-details-section">
+                <div class="movie-details-container">
+                    <div class="movie-poster-container">
+                        <img id="modalMoviePoster" src="" alt="Movie Poster" class="modal-movie-poster">
+                    </div>
+                    <div class="movie-details-info">
+                        <h1 id="modalMovieTitle" class="modal-movie-title"></h1>
+                        <div class="modal-movie-meta">
+                            <span class="modal-movie-year" id="modalMovieYear"></span>
+                        </div>
+                        <p id="modalMovieDescription" class="modal-movie-description"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Similar Movies Section -->
+            <div class="similar-movies-section">
+                <h2 class="section-title">You might also like</h2>
+                <div class="movies-scroll-container">
+                    <div class="movies-grid" id="modalSimilarMovies"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="netflix-container">
         <!-- Header -->
         <header class="header">
