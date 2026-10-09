@@ -26,7 +26,7 @@ public class MovieController {
     }
 
     @GetMapping("/{title}/similar")
-    public List<MovieMatch> getMethodName(@PathVariable String title) {
+    public List<MovieMatch> getSimilarMovies(@PathVariable String title) {
         return movieService.similarMovies(title);
     }
     

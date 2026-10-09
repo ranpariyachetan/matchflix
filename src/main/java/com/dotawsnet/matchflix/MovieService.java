@@ -118,7 +118,7 @@ public class MovieService {
             return 0.0;
         }
 
-        return dotProduct / Math.sqrt(normA) * Math.sqrt(normB);
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
     private void sortBySimilarity(List<MovieMatch> matches) {
