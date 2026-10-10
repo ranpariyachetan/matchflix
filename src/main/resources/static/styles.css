@@ -581,6 +581,51 @@ body {
     letter-spacing: 0.3px;
 }
 
+/* Watch Trailer */
+.watch-trailer-btn {
+    align-self: flex-start;
+    margin-top: 25px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #e50914;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.watch-trailer-btn:hover {
+    background-color: #f40812;
+    transform: scale(1.05);
+}
+
+.watch-trailer-btn.hidden {
+    display: none;
+}
+
+.modal-trailer {
+    margin-top: 20px;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(229, 9, 20, 0.3);
+    background-color: #000000;
+}
+
+.modal-trailer.hidden {
+    display: none;
+}
+
+.modal-trailer-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
 /* Similar Movies Section */
 .similar-movies-section {
     padding: 40px;

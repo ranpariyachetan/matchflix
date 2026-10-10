@@ -18,6 +18,9 @@ class MatchflixApp {
         this.modalMovieYear = document.getElementById('modalMovieYear');
         this.modalMovieDescription = document.getElementById('modalMovieDescription');
         this.modalSimilarMovies = document.getElementById('modalSimilarMovies');
+        this.watchTrailerBtn = document.getElementById('watchTrailerBtn');
+        this.modalTrailer = document.getElementById('modalTrailer');
+        this.modalTrailerFrame = document.getElementById('modalTrailerFrame');
 
         // Create a movie lookup map for quick access
         this.movieMap = {};
@@ -46,6 +49,7 @@ class MatchflixApp {
         // Modal event listeners
         this.modalClose.addEventListener('click', () => this.closeModal());
         this.modalOverlay.addEventListener('click', () => this.closeModal());
+        this.watchTrailerBtn.addEventListener('click', () => this.showTrailer());
 
         // Prevent modal closing when clicking on modal content
         this.modal.querySelector('.modal-content').addEventListener('click', (e) => {
@@ -192,6 +196,11 @@ class MatchflixApp {
         this.modalMovieYear.textContent = movie.year;
         this.modalMovieDescription.textContent = movie.description;
 
+        // Reset trailer from any previously opened movie
+        this.hideTrailer();
+        this.currentTrailerUrl = this.getYouTubeEmbedUrl(movie.trailer);
+        this.watchTrailerBtn.classList.toggle('hidden', !this.currentTrailerUrl);
+
         // Clear previous similar movies
         this.modalSimilarMovies.innerHTML = '<div class="loading"></div>';
 
@@ -274,7 +283,28 @@ class MatchflixApp {
         });
     }
 
+    showTrailer() {
+        if (!this.currentTrailerUrl) return;
+
+        this.modalTrailerFrame.src = this.currentTrailerUrl;
+        this.modalTrailer.classList.remove('hidden');
+        this.watchTrailerBtn.classList.add('hidden');
+    }
+
+    hideTrailer() {
+        // Clearing src stops playback when the trailer is closed or the modal changes
+        this.modalTrailerFrame.src = '';
+        this.modalTrailer.classList.add('hidden');
+        this.watchTrailerBtn.classList.remove('hidden');
+    }
+
+    getYouTubeEmbedUrl(url) {
+        const match = url && url.match(/(?:v=|youtu\.be\/)([\w-]{11})/);
+        return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0` : null;
+    }
+
     closeModal() {
+        this.hideTrailer();
         this.modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
